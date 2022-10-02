@@ -16,14 +16,21 @@ export const errorHandler = (
   res: Response<ErrorResponse>,
   _next: NextFunction
 ) => {
-  let statusCode = res.statusCode !== 200 ? res.statusCode : 500;
-  statusCode = error.name === 'CastError' ? 400 : statusCode;
-  statusCode =
-    error.name === 'UnauthorizedError' ||
-    error.name === 'JsonWebTokenError' ||
-    error.name === 'TokenExpiredError'
-      ? 401
-      : statusCode;
+  let statusCode: number;
+
+  switch (error.name) {
+    case 'UnauthorizedError':
+    case 'JsonWebTokenError':
+    case 'TokenExpiredError':
+      statusCode = 401;
+      break;
+    case 'CastError':
+    case 'ValidationError':
+      statusCode = 400;
+      break;
+    default:
+      statusCode = res.statusCode !== 200 ? res.statusCode : 500;
+  }
 
   res.status(statusCode);
   res.json({

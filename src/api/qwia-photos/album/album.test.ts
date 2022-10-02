@@ -13,7 +13,7 @@ let token: string;
 let jwks: JWKSMock;
 
 beforeAll(async () => {
-  await mongoose.connect(process.env.DB_ADDRESS || '');
+  await mongoose.connect(process.env.DB_ADDRESS_TEST || '');
   await Album.deleteMany({});
   jwks = startAuthServer();
   token = getToken(jwks);
@@ -45,6 +45,40 @@ describe('GET /api/v2/qwia-photos/album/all', () => {
       .set('Authorization', 'bearer ' + token)
       .expect('Content-Type', /json/)
       .expect(200, done);
+  });
+});
+
+describe('POST /api/v2/qwia-photos/album', () => {
+  const newAlbum = {
+    title: 'Test title 1',
+  };
+
+  it('no token, should fail with 401', (done) => {
+    request(app)
+      .post('/api/v2/qwia-photos/album')
+      .send(newAlbum)
+      .expect('Content-Type', /json/)
+      .expect(401, done);
+  });
+
+  it('with token, should add new album with 201 created', async () => {
+    const result = await request(app)
+      .post('/api/v2/qwia-photos/album')
+      .set('Authorization', 'bearer ' + token)
+      .send(newAlbum)
+      .expect('Content-Type', /json/)
+      .expect(201);
+
+    expect(result.body.title).toBe(newAlbum.title);
+  });
+
+  it('with token, invalid title, should fail', (done) => {
+    request(app)
+      .post('/api/v2/qwia-photos/album')
+      .set('Authorization', 'bearer ' + token)
+      .send({ title: '' })
+      .expect('Content-Type', /json/)
+      .expect(400, done);
   });
 });
 

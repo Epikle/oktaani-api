@@ -11,7 +11,7 @@ let token: string;
 let jwks: JWKSMock;
 
 beforeAll(async () => {
-  await mongoose.connect(process.env.DB_ADDRESS || '');
+  await mongoose.connect(process.env.DB_ADDRESS_TEST || '');
   jwks = startAuthServer();
   token = getToken(jwks);
   console.log(token);
