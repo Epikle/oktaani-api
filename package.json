@@ -21,9 +21,11 @@
     "express-jwt": "^7.7.5",
     "helmet": "^5.1.1",
     "jwks-rsa": "^2.1.4",
+    "mock-jwks": "^1.0.3",
     "mongoose": "^6.6.1",
     "morgan": "^1.10.0",
-    "nanoid": "^3.3.4"
+    "nanoid": "^3.3.4",
+    "nock": "^13.2.9"
   },
   "devDependencies": {
     "@types/cors": "^2.8.12",
