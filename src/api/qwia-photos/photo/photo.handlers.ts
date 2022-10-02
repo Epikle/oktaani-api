@@ -25,23 +25,29 @@ export const createPhoto = async (req: Request, res: Response<TPhoto>) => {
   res.status(201).json(savedPhoto);
 };
 
-export const updatePhotoById = async (req: Request, res: Response<{}>) => {
+export const updatePhotoById = async (req: Request, res: Response<TPhoto>) => {
   const { pid: photoId } = req.params;
   const { title }: { title: string } = req.body;
 
-  console.log('update: ', photoId, title);
-  //TODO: update title to db
+  const updatedPhoto = await Photo.findByIdAndUpdate(
+    photoId,
+    { title: title.trim() },
+    {
+      new: true,
+      runValidators: true,
+    }
+  );
+  if (!updatedPhoto) throw new Error('Photo not found!');
 
-  res.status(204).end();
+  res.json(updatedPhoto);
 };
 
 export const deletePhotoById = async (req: Request, res: Response<{}>) => {
   const { pid: photoId } = req.params;
 
-  console.log('delete: ', photoId);
-  // if (!result) throw new Error('Album not found!');
+  const result = await Album.findByIdAndRemove(photoId);
+  if (!result) throw new Error('Photo not found!');
 
-  //TODO: delete photo from db
   //TODO: delete photo also from S3
 
   res.status(204).end();
