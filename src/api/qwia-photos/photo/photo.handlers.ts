@@ -13,7 +13,7 @@ export const createPhoto = async (req: Request, res: Response<TPhoto>) => {
 
   if (!album) {
     res.status(404);
-    throw new Error('Album not found!');
+    throw new Error('Album not found.');
   }
 
   const photo = new Photo({
@@ -42,7 +42,7 @@ export const updatePhotoById = async (req: Request, res: Response<TPhoto>) => {
       runValidators: true,
     }
   );
-  if (!updatedPhoto) throw new Error('Photo not found!');
+  if (!updatedPhoto) throw new Error('Photo not found.');
 
   res.json(updatedPhoto);
 };
@@ -53,14 +53,14 @@ export const deletePhotoById = async (req: Request, res: Response<{}>) => {
   const photo = await Photo.findByIdAndRemove(photoId);
   if (!photo) {
     res.status(404);
-    throw new Error('Photo not found!');
+    throw new Error('Photo not found.');
   }
 
   const albumId = photo.album.toString();
   const album = await Album.findById(albumId);
   if (!album) {
     res.status(404);
-    throw new Error('Album not found!');
+    throw new Error('Album not found.');
   }
 
   const filteredPhotoList = album.photos.filter(
@@ -78,4 +78,51 @@ export const deletePhotoById = async (req: Request, res: Response<{}>) => {
   await s3Client.send(command);
 
   res.status(204).end();
+};
+
+export const addLikeToPhotoById = async (req: Request, res: Response<{}>) => {
+  const { pid: photoId } = req.params;
+  const { lid: likeId }: { lid: string } = req.body;
+
+  if (!likeId || likeId.trim() === '') {
+    res.status(400);
+    throw new Error('Missing like id.');
+  }
+
+  const result = await Photo.updateOne(
+    { _id: photoId },
+    { $push: { likes: likeId.trim() } }
+  );
+
+  if (result.matchedCount === 0) {
+    res.status(404);
+    throw new Error('Photo not found.');
+  }
+
+  res.status(201).end();
+};
+
+export const deleteLikeFromPhotoById = async (
+  req: Request,
+  res: Response<{}>
+) => {
+  const { pid: photoId } = req.params;
+  const { lid: likeId } = req.query;
+
+  if (!likeId) {
+    res.status(400);
+    throw new Error('Missing like id.');
+  }
+
+  const photo = await Photo.findById(photoId);
+
+  if (!photo) {
+    res.status(404);
+    throw new Error('Photo not found.');
+  }
+
+  photo.likes = photo.likes?.filter((id) => id !== likeId);
+  await photo.save();
+
+  res.status(201).end();
 };

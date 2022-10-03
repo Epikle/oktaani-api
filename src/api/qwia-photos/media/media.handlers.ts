@@ -16,6 +16,7 @@ export const getS3SignedUrl = async (
   res: Response<MediaResponse>
 ) => {
   const { aid: albumId } = req.params;
+  const { filetype } = req.query;
 
   const album = await Album.findById(albumId);
 
@@ -24,12 +25,12 @@ export const getS3SignedUrl = async (
     throw new Error('Album not found.');
   }
 
-  if (!req.query.filetype) {
+  if (!filetype) {
     res.status(400);
     throw new Error('Missing query parameter.');
   }
 
-  const fileExtension = (req.query.filetype as string).split('/')[1];
+  const fileExtension = (filetype as string).split('/')[1];
 
   if (!fileExtension) {
     res.status(400);

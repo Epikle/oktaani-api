@@ -25,7 +25,7 @@ export const getAlbumPhotosById = async (
   const { aid: albumId } = req.params;
 
   const album = await Album.findById(albumId).populate('photos', { album: 0 });
-  if (!album) throw new Error('Album not found!');
+  if (!album) throw new Error('Album not found.');
 
   res.json(album);
 };
@@ -54,7 +54,7 @@ export const updateAlbumById = async (req: Request, res: Response<TAlbum>) => {
   );
   if (!updatedAlbum) {
     res.status(404);
-    throw new Error('Album not found!');
+    throw new Error('Album not found.');
   }
 
   res.json(updatedAlbum);
@@ -66,7 +66,7 @@ export const deleteAlbumById = async (req: Request, res: Response<{}>) => {
   const deletedAlbum = await Album.findByIdAndRemove(albumId);
   if (!deletedAlbum) {
     res.status(404);
-    throw new Error('Album not found!');
+    throw new Error('Album not found.');
   }
 
   const photosToBeDeleted = await Photo.aggregate([
