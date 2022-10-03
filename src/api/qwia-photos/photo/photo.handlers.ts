@@ -89,15 +89,20 @@ export const addLikeToPhotoById = async (req: Request, res: Response<{}>) => {
     throw new Error('Missing like id.');
   }
 
-  const result = await Photo.updateOne(
-    { _id: photoId },
-    { $push: { likes: likeId.trim() } }
-  );
+  const photo = await Photo.findById(photoId);
 
-  if (result.matchedCount === 0) {
+  if (!photo) {
     res.status(404);
     throw new Error('Photo not found.');
   }
+
+  if (photo.likes?.includes(likeId)) {
+    res.status(409);
+    throw new Error('Photo is already liked with this like id.');
+  }
+
+  photo.likes = photo.likes?.concat(likeId.trim());
+  await photo.save();
 
   res.status(201).end();
 };

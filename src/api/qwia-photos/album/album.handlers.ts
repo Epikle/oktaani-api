@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { DeleteObjectsCommand } from '@aws-sdk/client-s3';
+import mongoose from 'mongoose';
 
 import Album, { TAlbum } from './album.model';
 import Photo from '../photo/photo.model';
@@ -9,7 +10,39 @@ export const getVisibleAlbums = async (
   _req: Request,
   res: Response<TAlbum[]>
 ) => {
-  const visibleAlbums = await Album.find({ isPublished: true });
+  // const visibleAlbums = await Album.find({ isPublished: true });
+  const visibleAlbums: TAlbum[] = await Album.aggregate([
+    { $match: { isPublished: true } },
+    {
+      $lookup: {
+        from: 'photos',
+        localField: 'photos',
+        foreignField: '_id',
+        as: 'photos',
+        pipeline: [
+          {
+            $set: {
+              id: '$_id',
+              thumbnail: 'URL HERE',
+            },
+          },
+          {
+            $unset: ['_id', '__v', 'album'],
+          },
+        ],
+      },
+    },
+    {
+      $set: {
+        id: '$_id',
+        totalPhotos: { $size: '$photos' },
+      },
+    },
+    {
+      $unset: ['_id', '__v'],
+    },
+  ]);
+
   res.json(visibleAlbums);
 };
 
@@ -23,11 +56,55 @@ export const getAlbumPhotosById = async (
   res: Response<TAlbum>
 ) => {
   const { aid: albumId } = req.params;
+  const likeId = 'test2';
+  const objId = new mongoose.Types.ObjectId(albumId);
 
-  const album = await Album.findById(albumId).populate('photos', { album: 0 });
-  if (!album) throw new Error('Album not found.');
+  const album: TAlbum[] = await Album.aggregate([
+    { $match: { _id: objId } },
+    { $limit: 1 },
+    {
+      $lookup: {
+        from: 'photos',
+        localField: 'photos',
+        foreignField: '_id',
+        as: 'photos',
+        pipeline: [
+          {
+            $set: {
+              id: '$_id',
+              likes: [
+                { $size: '$likes' },
+                {
+                  $toBool: {
+                    $in: [likeId, '$likes'],
+                  },
+                },
+              ],
+            },
+          },
+          {
+            $unset: ['_id', '__v', 'album'],
+          },
+        ],
+      },
+    },
+    {
+      $set: {
+        id: '$_id',
+        totalPhotos: { $size: '$photos' },
+      },
+    },
+    {
+      $unset: ['_id', '__v'],
+    },
+  ]);
 
-  res.json(album);
+  if (!album || album.length === 0) {
+    res.status(404);
+    throw new Error('Album not found.');
+  }
+
+  res.json(album[0]);
 };
 
 export const createAlbum = async (req: Request, res: Response<TAlbum>) => {
@@ -62,6 +139,7 @@ export const updateAlbumById = async (req: Request, res: Response<TAlbum>) => {
 
 export const deleteAlbumById = async (req: Request, res: Response<{}>) => {
   const { aid: albumId } = req.params;
+  const objId = new mongoose.Types.ObjectId(albumId);
 
   const deletedAlbum = await Album.findByIdAndRemove(albumId);
   if (!deletedAlbum) {
@@ -70,6 +148,9 @@ export const deleteAlbumById = async (req: Request, res: Response<{}>) => {
   }
 
   const photosToBeDeleted = await Photo.aggregate([
+    {
+      $match: { album: objId },
+    },
     {
       $project: {
         _id: 0,
