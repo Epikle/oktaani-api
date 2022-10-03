@@ -1,7 +1,9 @@
 import { Request, Response } from 'express';
+import { DeleteObjectCommand } from '@aws-sdk/client-s3';
 
 import Album from '../album/album.model';
 import Photo, { TPhoto } from './photo.model';
+import { s3Client } from '../util/s3Setup';
 
 export const createPhoto = async (req: Request, res: Response<TPhoto>) => {
   const { aid: albumId } = req.params;
@@ -9,11 +11,14 @@ export const createPhoto = async (req: Request, res: Response<TPhoto>) => {
 
   const album = await Album.findById(albumId);
 
-  if (!album) throw new Error('Album not found!');
+  if (!album) {
+    res.status(404);
+    throw new Error('Album not found!');
+  }
 
   const photo = new Photo({
-    title: title.trim(),
-    url: url.trim(),
+    title: title?.trim(),
+    url: url?.trim(),
     album: album._id,
   });
 
@@ -45,10 +50,32 @@ export const updatePhotoById = async (req: Request, res: Response<TPhoto>) => {
 export const deletePhotoById = async (req: Request, res: Response<{}>) => {
   const { pid: photoId } = req.params;
 
-  const result = await Album.findByIdAndRemove(photoId);
-  if (!result) throw new Error('Photo not found!');
+  const photo = await Photo.findByIdAndRemove(photoId);
+  if (!photo) {
+    res.status(404);
+    throw new Error('Photo not found!');
+  }
 
-  //TODO: delete photo also from S3
+  const albumId = photo.album.toString();
+  const album = await Album.findById(albumId);
+  if (!album) {
+    res.status(404);
+    throw new Error('Album not found!');
+  }
+
+  const filteredPhotoList = album.photos.filter(
+    (id: string) => photoId !== id.toString()
+  );
+
+  album.photos = filteredPhotoList;
+  await album.save();
+
+  const bucketParams = {
+    Bucket: process.env.S3_BUCKET_NAME,
+    Key: `${albumId}/${photoId}`,
+  };
+  const command = new DeleteObjectCommand(bucketParams);
+  await s3Client.send(command);
 
   res.status(204).end();
 };

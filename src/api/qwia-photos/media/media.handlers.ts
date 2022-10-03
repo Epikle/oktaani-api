@@ -1,21 +1,29 @@
 import { Request, Response } from 'express';
-import S3 from 'aws-sdk/clients/s3';
+import { PutObjectCommand } from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { nanoid } from 'nanoid';
 
-const s3 = new S3({
-  apiVersion: '2006-03-01',
-  accessKeyId: process.env.S3_ACCESS_KEY,
-  secretAccessKey: process.env.S3_SECRET_KEY,
-  region: process.env.S3_REGION,
-  signatureVersion: 'v4',
-});
+import Album from '../album/album.model';
+import { s3Client } from '../util/s3Setup';
 
 type MediaResponse = {
   uploadUrl: string;
   key: string;
 };
 
-export const getS3SignedUrl = (req: Request, res: Response<MediaResponse>) => {
+export const getS3SignedUrl = async (
+  req: Request,
+  res: Response<MediaResponse>
+) => {
+  const { aid: albumId } = req.params;
+
+  const album = await Album.findById(albumId);
+
+  if (!album) {
+    res.status(404);
+    throw new Error('Album not found.');
+  }
+
   if (!req.query.filetype) {
     res.status(400);
     throw new Error('Missing query parameter.');
@@ -28,16 +36,16 @@ export const getS3SignedUrl = (req: Request, res: Response<MediaResponse>) => {
     throw new Error('Invalid query parameter.');
   }
 
-  const fileName = `${nanoid()}.${fileExtension}`;
+  const fileName = `${albumId}/${nanoid()}.${fileExtension}`;
 
-  const s3Params = {
+  const bucketParams = {
     Bucket: process.env.S3_BUCKET_NAME,
     Key: fileName,
-    Expires: 60,
     ContentType: `image/${fileExtension}`,
   };
 
-  const uploadUrl = s3.getSignedUrl('putObject', s3Params);
+  const command = new PutObjectCommand(bucketParams);
+  const uploadUrl = await getSignedUrl(s3Client, command, { expiresIn: 3600 });
 
   res.json({
     uploadUrl,

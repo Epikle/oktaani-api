@@ -7,7 +7,7 @@ dotenv.config();
 import app from '../../../app';
 import Album from './album.model';
 
-import { startAuthServer, getToken, stopAuthServer } from '../setupTests';
+import { startAuthServer, getToken, stopAuthServer } from '../util/setupTests';
 
 let token: string;
 let jwks: JWKSMock;
