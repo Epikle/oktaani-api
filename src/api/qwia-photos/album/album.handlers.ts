@@ -188,6 +188,10 @@ export const deleteAlbumById = async (req: Request, res: Response<{}>) => {
     },
   ]);
 
+  if (photosToBeDeleted.length === 0) {
+    return res.status(204).end();
+  }
+
   await Photo.deleteMany({ album: albumId });
 
   const bucketParams = {
@@ -198,6 +202,7 @@ export const deleteAlbumById = async (req: Request, res: Response<{}>) => {
   };
 
   const command = new DeleteObjectsCommand(bucketParams);
+
   await s3Client.send(command);
 
   res.status(204).end();

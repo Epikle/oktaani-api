@@ -72,7 +72,7 @@ export const deletePhotoById = async (req: Request, res: Response<{}>) => {
 
   const bucketParams = {
     Bucket: process.env.S3_BUCKET_NAME,
-    Key: `${albumId}/${photoId}`,
+    Key: photo.url,
   };
   const command = new DeleteObjectCommand(bucketParams);
   await s3Client.send(command);
