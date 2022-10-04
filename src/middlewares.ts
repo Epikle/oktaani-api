@@ -2,7 +2,10 @@ import { NextFunction, Request, Response } from 'express';
 import { expressjwt, GetVerificationKey } from 'express-jwt';
 import jwksRsa from 'jwks-rsa';
 
-import { ErrorResponse } from './types/ErrorResponse.type';
+type ErrorResponse = {
+  message: string;
+  stack?: string;
+};
 
 export const notFound = (req: Request, res: Response, next: NextFunction) => {
   res.status(404);
