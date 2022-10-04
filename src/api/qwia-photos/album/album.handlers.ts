@@ -18,11 +18,6 @@ export const getVisibleAlbums = async (
         localField: 'photos',
         foreignField: '_id',
         as: 'photos',
-        pipeline: [
-          {
-            $unset: ['_id', '__v', 'album', 'title'],
-          },
-        ],
       },
     },
     {
@@ -58,11 +53,6 @@ export const getAllAlbums = async (_req: Request, res: Response<TAlbum[]>) => {
         localField: 'photos',
         foreignField: '_id',
         as: 'photos',
-        pipeline: [
-          {
-            $unset: ['_id', '__v', 'album', 'title'],
-          },
-        ],
       },
     },
     {
@@ -95,7 +85,7 @@ export const getAlbumPhotosById = async (
   res: Response<TAlbum>
 ) => {
   const { aid: albumId } = req.params;
-  const likeId = 'test2';
+  const { lid: likeId } = req.query;
   const objId = new mongoose.Types.ObjectId(albumId);
 
   const album: TAlbum[] = await Album.aggregate([
