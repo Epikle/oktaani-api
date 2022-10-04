@@ -10,7 +10,6 @@ export const getVisibleAlbums = async (
   _req: Request,
   res: Response<TAlbum[]>
 ) => {
-  // const visibleAlbums = await Album.find({ isPublished: true });
   const visibleAlbums: TAlbum[] = await Album.aggregate([
     { $match: { isPublished: true } },
     {
@@ -21,13 +20,7 @@ export const getVisibleAlbums = async (
         as: 'photos',
         pipeline: [
           {
-            $set: {
-              id: '$_id',
-              thumbnail: 'URL HERE',
-            },
-          },
-          {
-            $unset: ['_id', '__v', 'album'],
+            $unset: ['_id', '__v', 'album', 'title'],
           },
         ],
       },
@@ -36,10 +29,21 @@ export const getVisibleAlbums = async (
       $set: {
         id: '$_id',
         totalPhotos: { $size: '$photos' },
+        thumbnail: {
+          $max: {
+            $map: {
+              input: '$photos',
+              in: {
+                likes: { $size: '$$this.likes' },
+                url: '$$this.url',
+              },
+            },
+          },
+        },
       },
     },
     {
-      $unset: ['_id', '__v'],
+      $unset: ['_id', '__v', 'photos'],
     },
   ]);
 
@@ -47,7 +51,42 @@ export const getVisibleAlbums = async (
 };
 
 export const getAllAlbums = async (_req: Request, res: Response<TAlbum[]>) => {
-  const allAlbums = await Album.find({});
+  const allAlbums: TAlbum[] = await Album.aggregate([
+    {
+      $lookup: {
+        from: 'photos',
+        localField: 'photos',
+        foreignField: '_id',
+        as: 'photos',
+        pipeline: [
+          {
+            $unset: ['_id', '__v', 'album', 'title'],
+          },
+        ],
+      },
+    },
+    {
+      $set: {
+        id: '$_id',
+        totalPhotos: { $size: '$photos' },
+        thumbnail: {
+          $max: {
+            $map: {
+              input: '$photos',
+              in: {
+                likes: { $size: '$$this.likes' },
+                url: '$$this.url',
+              },
+            },
+          },
+        },
+      },
+    },
+    {
+      $unset: ['_id', '__v', 'photos'],
+    },
+  ]);
+
   res.json(allAlbums);
 };
 
