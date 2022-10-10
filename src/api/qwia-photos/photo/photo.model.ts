@@ -13,8 +13,12 @@ const photoSchema = new Schema({
   likes: { type: Array },
   album: {
     type: Schema.Types.ObjectId,
-    ref: 'Album',
+    ref: 'qwia-photos_albums',
   },
 });
 
-export default model<TPhoto>('Photo', photoSchema);
+export default model<TPhoto>(
+  'qwia-photos_photos',
+  photoSchema,
+  'qwia-photos_photos'
+);

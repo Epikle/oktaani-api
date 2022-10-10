@@ -12,9 +12,13 @@ const albumSchema = new Schema({
   photos: [
     {
       type: Schema.Types.ObjectId,
-      ref: 'Photo',
+      ref: 'qwia-photos_photos',
     },
   ],
 });
 
-export default model<TAlbum>('Album', albumSchema);
+export default model<TAlbum>(
+  'qwia-photos_albums',
+  albumSchema,
+  'qwia-photos_albums'
+);
