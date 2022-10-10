@@ -9,5 +9,6 @@ mongoose
   .connect(process.env.DB_ADDRESS || '')
   .then(() => {
     app.listen(port);
+    console.log('DB connected and server running.');
   })
   .catch((error) => console.log(error));
