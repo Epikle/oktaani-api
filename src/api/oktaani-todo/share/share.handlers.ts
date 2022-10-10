@@ -19,6 +19,11 @@ export const getShareById = async (req: Request, res: Response) => {
     { __v: 0, _id: 0, shareId: 0 }
   );
 
+  if (!sharedCollection) {
+    res.status(404);
+    throw new Error('Share not found.');
+  }
+
   res.json({ sharedCollection });
 };
 
