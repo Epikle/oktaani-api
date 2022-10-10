@@ -14,7 +14,7 @@ export const getVisibleAlbums = async (
     { $match: { isPublished: true } },
     {
       $lookup: {
-        from: 'photos',
+        from: 'qwia-photos_photos',
         localField: 'photos',
         foreignField: '_id',
         as: 'photos',
@@ -49,7 +49,7 @@ export const getAllAlbums = async (_req: Request, res: Response<TAlbum[]>) => {
   const allAlbums: TAlbum[] = await Album.aggregate([
     {
       $lookup: {
-        from: 'photos',
+        from: 'qwia-photos_photos',
         localField: 'photos',
         foreignField: '_id',
         as: 'photos',
@@ -93,7 +93,7 @@ export const getAlbumPhotosById = async (
     { $limit: 1 },
     {
       $lookup: {
-        from: 'photos',
+        from: 'qwia-photos_photos',
         localField: 'photos',
         foreignField: '_id',
         as: 'photos',
