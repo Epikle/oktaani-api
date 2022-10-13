@@ -1,9 +1,9 @@
 import { Request, Response } from 'express';
 
-import Share from './share.model';
+import Share, { TShare } from './share.model';
 
 export const createNewShare = async (req: Request, res: Response) => {
-  const { shareData } = req.body;
+  const { shareData }: { shareData: TShare } = req.body;
   const createdShare = new Share(shareData);
 
   await createdShare.save();

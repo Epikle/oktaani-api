@@ -1,6 +1,14 @@
-import mongoose from 'mongoose';
+import { Schema, model } from 'mongoose';
 
-const shareSchema = new mongoose.Schema({
+export type TShare = {
+  shareId: string;
+  title: string;
+  color: string;
+  todos: [];
+  created?: Date;
+};
+
+const shareSchema = new Schema({
   shareId: { type: String, required: true },
   title: { type: String, required: true },
   color: { type: String, required: true },
@@ -8,7 +16,7 @@ const shareSchema = new mongoose.Schema({
   created: { type: Date, default: new Date() },
 });
 
-export default mongoose.model(
+export default model<TShare>(
   'oktaani-todo_shares',
   shareSchema,
   'oktaani-todo_shares'
