@@ -49,6 +49,15 @@ describe(`GET, ${baseUrl}`, () => {
       initialData.shareData.color
     );
   });
+
+  it('get todo with invalid id, should fail with 404 code', async () => {
+    const response = await request(app)
+      .get(baseUrl + '/invalid-id')
+      .expect('Content-Type', /json/)
+      .expect(404);
+
+    expect(response.body.message).toBe('Share not found.');
+  });
 });
 
 describe(`DELETE, ${baseUrl}`, () => {
