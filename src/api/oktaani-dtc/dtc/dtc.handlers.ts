@@ -1,19 +1,7 @@
 import { Request, Response } from 'express';
 
 import Dtc, { TDtc } from './dtc.model';
-
-const trimDtc = ({ system, code }: TDtc): TDtc => ({
-  system: {
-    title: system.title.trim(),
-    subCode: system.subCode.trim(),
-    subName: system.subName.trim(),
-  },
-  code: {
-    title: code.title.trim(),
-    description: code.description.trim(),
-    location: code.location?.trim(),
-  },
-});
+import { trimDtc } from './util/dtc.util';
 
 export const getAllDtcs = async (_req: Request, res: Response<TDtc[]>) => {
   const dtcs = await Dtc.find({});
@@ -37,7 +25,7 @@ export const createDtc = async (
 
 export const updateDtcById = async (
   req: Request<{ id: string }, {}, TDtc>,
-  res: Response
+  res: Response<TDtc>
 ) => {
   const { id } = req.params;
   const { system, code } = req.body;
