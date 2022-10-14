@@ -22,7 +22,7 @@ const dtcSchema = new Schema({
   code: {
     title: { type: String, required: true },
     description: { type: String, required: true },
-    location: { type: String, required: false },
+    location: { type: String },
   },
 });
 

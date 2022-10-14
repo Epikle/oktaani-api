@@ -1,6 +1,6 @@
 import express from 'express';
 
-import { checkJwt } from '../../../middlewares';
+import { checkJwtQwia } from '../../../middlewares';
 import {
   createPhoto,
   updatePhotoById,
@@ -12,9 +12,9 @@ import {
 const router = express.Router();
 
 //api/v2/qwia-photos/photo/
-router.post('/:aid', checkJwt, createPhoto);
-router.patch('/:pid', checkJwt, updatePhotoById);
-router.delete('/:pid', checkJwt, deletePhotoById);
+router.post('/:aid', checkJwtQwia, createPhoto);
+router.patch('/:pid', checkJwtQwia, updatePhotoById);
+router.delete('/:pid', checkJwtQwia, deletePhotoById);
 
 //api/v2/qwia-photos/photo/like/
 router.post('/like/:pid', addLikeToPhotoById);

@@ -1,6 +1,6 @@
 import express from 'express';
 
-import { checkJwt } from '../../../middlewares';
+import { checkJwtQwia } from '../../../middlewares';
 import {
   getVisibleAlbums,
   getAllAlbums,
@@ -14,10 +14,10 @@ const router = express.Router();
 
 //api/v2/qwia-photos/album/
 router.get('/', getVisibleAlbums);
-router.get('/all', checkJwt, getAllAlbums);
+router.get('/all', checkJwtQwia, getAllAlbums);
 router.get('/:aid', getAlbumPhotosById);
-router.post('/', checkJwt, createAlbum);
-router.patch('/:aid', checkJwt, updateAlbumById);
-router.delete('/:aid', checkJwt, deleteAlbumById);
+router.post('/', checkJwtQwia, createAlbum);
+router.patch('/:aid', checkJwtQwia, updateAlbumById);
+router.delete('/:aid', checkJwtQwia, deleteAlbumById);
 
 export default router;

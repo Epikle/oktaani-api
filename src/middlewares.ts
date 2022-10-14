@@ -42,14 +42,26 @@ export const errorHandler = (
   });
 };
 
-export const checkJwt = expressjwt({
+export const checkJwtQwia = expressjwt({
   secret: jwksRsa.expressJwtSecret({
     cache: true,
     rateLimit: true,
     jwksRequestsPerMinute: 5,
-    jwksUri: `${process.env.AUTH0_DOMAIN}/.well-known/jwks.json`,
+    jwksUri: `${process.env.AUTH0_DOMAIN_QWIA}/.well-known/jwks.json`,
   }) as GetVerificationKey,
-  audience: process.env.AUTH0_AUDIENCE,
-  issuer: `${process.env.AUTH0_DOMAIN}/`,
+  audience: process.env.AUTH0_AUDIENCE_QWIA,
+  issuer: `${process.env.AUTH0_DOMAIN_QWIA}/`,
+  algorithms: ['RS256'],
+});
+
+export const checkJwtOktaani = expressjwt({
+  secret: jwksRsa.expressJwtSecret({
+    cache: true,
+    rateLimit: true,
+    jwksRequestsPerMinute: 5,
+    jwksUri: `${process.env.AUTH0_DOMAIN_OKTAANI}/.well-known/jwks.json`,
+  }) as GetVerificationKey,
+  audience: process.env.AUTH0_AUDIENCE_OKTAANI,
+  issuer: `${process.env.AUTH0_DOMAIN_OKTAANI}/`,
   algorithms: ['RS256'],
 });
