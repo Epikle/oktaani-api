@@ -4,7 +4,7 @@ import Dtc, { TDtc } from './dtc.model';
 import { trimDtc } from './util/dtc.util';
 
 export const getAllDtcs = async (_req: Request, res: Response<TDtc[]>) => {
-  const dtcs = await Dtc.find({});
+  const dtcs = await Dtc.find({}).sort('code.title');
 
   res.json(dtcs);
 };

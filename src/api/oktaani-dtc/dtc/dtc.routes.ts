@@ -1,5 +1,6 @@
 import express from 'express';
 
+import { checkJwtOktaani } from '../../../middlewares';
 import {
   getAllDtcs,
   createDtc,
@@ -11,8 +12,8 @@ const router = express.Router();
 
 //api/v2/oktaani-dtc/dtc/
 router.get('/', getAllDtcs);
-router.post('/', createDtc);
-router.patch('/:id', updateDtcById);
-router.delete('/:id', deleteDtcById);
+router.post('/', checkJwtOktaani, createDtc);
+router.patch('/:id', checkJwtOktaani, updateDtcById);
+router.delete('/:id', checkJwtOktaani, deleteDtcById);
 
 export default router;
