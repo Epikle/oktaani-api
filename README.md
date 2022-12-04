@@ -1,6 +1,6 @@
 # oktaaniAPI
 
-This is a REST API for my web app projects.
+This is a RESTful API for my web app projects.
 
 ## Apps using this
 
