@@ -9,4 +9,11 @@ describe('app', () => {
       .expect('Content-Type', /json/)
       .expect(404, done);
   });
+
+  it('health endpoint responds with status code 200', (done) => {
+    request(app)
+      .get('/health')
+      .expect('Content-Type', /json/)
+      .expect(200, done);
+  });
 });

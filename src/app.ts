@@ -16,6 +16,9 @@ app.use(helmet());
 app.use(cors());
 app.use(express.json());
 
+app.get('/health', (_req, res) => {
+  res.json({ message: 'health ok' });
+});
 app.use('/api/v2', api);
 
 app.use(middlewares.notFound);
