@@ -29,27 +29,27 @@ jobs:
       - name: test
         run: npm run test
 
-      - name: Install Railway
-        if: ${{ github.event_name == 'push' }}
-        run: npm i -g @railway/cli
+  #     - name: Install Railway
+  #       if: ${{ github.event_name == 'push' }}
+  #       run: npm i -g @railway/cli
 
-      - name: Deploy Railway
-        if: ${{ github.event_name == 'push' }}
-        run: railway up
-        env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+  #     - name: Deploy Railway
+  #       if: ${{ github.event_name == 'push' }}
+  #       run: railway up
+  #       env:
+  #         RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
 
-  tag_release:
-    if: ${{ github.event_name == 'push' && !contains( join(github.event.commits.*.message, ' '), '#skip' ) }}
-    needs: [deploy]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          ref: ${{ github.event.pull_request.head.sha }}
-          fetch-depth: '0'
+  # tag_release:
+  #   if: ${{ github.event_name == 'push' && !contains( join(github.event.commits.*.message, ' '), '#skip' ) }}
+  #   needs: [deploy]
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #       with:
+  #         ref: ${{ github.event.pull_request.head.sha }}
+  #         fetch-depth: '0'
 
-      - name: Bump version and push tag
-        uses: anothrNick/github-tag-action@1.36.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #     - name: Bump version and push tag
+  #       uses: anothrNick/github-tag-action@1.36.0
+  #       env:
+  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
