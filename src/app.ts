@@ -2,7 +2,7 @@ import express from 'express';
 import morgan from 'morgan';
 import helmet from 'helmet';
 import cors from 'cors';
-require('express-async-errors');
+import 'express-async-errors';
 
 import * as middlewares from './middlewares';
 import api from './api';

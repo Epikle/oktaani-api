@@ -32,19 +32,19 @@ describe('GET /api/v2/qwia-photos/album', () => {
 });
 
 describe('GET /api/v2/qwia-photos/album/all', () => {
-  it('responds with 401, unauthorized, no token', (done) => {
+  it('responds with 401, unauthorized, no token', () => {
     request(app)
       .get('/api/v2/qwia-photos/album/all')
       .expect('Content-Type', /json/)
-      .expect(401, done);
+      .expect(401);
   });
 
-  it('with valid token, should return 200', (done) => {
+  it('with valid token, should return 200', () => {
     request(app)
       .get('/api/v2/qwia-photos/album/all')
       .set('Authorization', 'bearer ' + token)
       .expect('Content-Type', /json/)
-      .expect(200, done);
+      .expect(200);
   });
 });
 
@@ -53,12 +53,12 @@ describe('POST /api/v2/qwia-photos/album', () => {
     title: 'Test title 1',
   };
 
-  it('no token, should fail with 401', (done) => {
+  it('no token, should fail with 401', () => {
     request(app)
       .post('/api/v2/qwia-photos/album')
       .send(newAlbum)
       .expect('Content-Type', /json/)
-      .expect(401, done);
+      .expect(401);
   });
 
   it('with token, should add new album with 201 created', async () => {
@@ -72,13 +72,13 @@ describe('POST /api/v2/qwia-photos/album', () => {
     expect(result.body.title).toBe(newAlbum.title);
   });
 
-  it('with token, invalid title, should fail', (done) => {
+  it('with token, invalid title, should fail', () => {
     request(app)
       .post('/api/v2/qwia-photos/album')
       .set('Authorization', 'bearer ' + token)
       .send({ title: '' })
       .expect('Content-Type', /json/)
-      .expect(400, done);
+      .expect(400);
   });
 });
 

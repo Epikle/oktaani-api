@@ -18,11 +18,11 @@ beforeAll(async () => {
 });
 
 describe('POST /api/v2/qwia-photos/photo', () => {
-  it('no token, should fail with code 401', (done) => {
+  it('no token, should fail with code 401', () => {
     request(app)
       .get('/api/v2/qwia-photos/album/all')
       .expect('Content-Type', /json/)
-      .expect(401, done);
+      .expect(401);
   });
 });
 
