@@ -1,6 +1,20 @@
 import { Schema, model } from 'mongoose';
 
-import type { TCollection } from '../../../../../oktaani-todo/src/types';
+type TCollection = {
+  id: string;
+  title: string;
+  color: string;
+  shared: boolean;
+  todos: TItem[];
+  created: string;
+};
+
+type TItem = {
+  id: string;
+  text: string;
+  done: boolean;
+  created: string;
+};
 
 const shareSchema = new Schema<TCollection>({
   id: { type: String, required: true, unique: true },
