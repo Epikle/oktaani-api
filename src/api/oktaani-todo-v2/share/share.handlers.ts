@@ -22,6 +22,25 @@ export const getSharedCollection = async (req: Request, res: Response) => {
   res.status(200).json(collection);
 };
 
+export const updateSharedCollection = async (req: Request, res: Response) => {
+  const { id } = req.params;
+
+  const updatedCollection = await Share.findOneAndReplace(
+    { id },
+    { ...req.body, id },
+    {
+      runValidators: true,
+    }
+  );
+
+  if (!updatedCollection) {
+    res.status(404);
+    throw new Error('Not Found');
+  }
+
+  res.sendStatus(204);
+};
+
 export const deleteSharedCollection = async (req: Request, res: Response) => {
   const { id } = req.params;
 
