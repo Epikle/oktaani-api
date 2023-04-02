@@ -21,14 +21,18 @@ const shareSchema = new Schema<TCollection>({
   title: { type: String, required: true },
   color: { type: String, required: true },
   shared: { type: Boolean, required: true },
-  todos: [
-    {
-      id: { type: String, required: true, unique: true },
-      text: { type: String, required: true },
-      done: { type: Boolean, required: true },
-      created: { type: String, required: true },
-    },
-  ],
+  todos: {
+    type: [
+      {
+        id: { type: String, required: true },
+        text: { type: String, required: true },
+        done: { type: Boolean, required: true },
+        created: { type: String, required: true },
+      },
+    ],
+    default: undefined,
+    sparse: true,
+  },
   created: { type: String, required: true },
 });
 
