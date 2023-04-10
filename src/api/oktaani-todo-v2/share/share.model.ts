@@ -1,11 +1,18 @@
 import { Schema, model } from 'mongoose';
 
+enum TodoType {
+  todo = 'todo',
+  note = 'note',
+  unset = 'unset',
+}
 type TCollection = {
   id: string;
   title: string;
   color: string;
   shared: boolean;
   todos: TItem[];
+  note: string;
+  type: TodoType;
   created: string;
 };
 
@@ -33,6 +40,8 @@ const shareSchema = new Schema<TCollection>({
     default: undefined,
     sparse: true,
   },
+  note: { type: String, default: '' },
+  type: { type: String, enum: TodoType, default: TodoType.unset },
   created: { type: String, required: true },
 });
 
