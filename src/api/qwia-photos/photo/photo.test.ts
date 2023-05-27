@@ -1,4 +1,4 @@
-import request from 'supertest';
+import supertest from 'supertest';
 import mongoose from 'mongoose';
 import { JWKSMock } from 'mock-jwks';
 import * as dotenv from 'dotenv';
@@ -10,6 +10,8 @@ import { startAuthServer, getToken, stopAuthServer } from '../util/setupTests';
 let token: string;
 let jwks: JWKSMock;
 
+const api = supertest(app);
+
 beforeAll(async () => {
   await mongoose.connect(process.env.DB_ADDRESS_TEST || '');
   jwks = startAuthServer();
@@ -19,7 +21,7 @@ beforeAll(async () => {
 
 describe('POST /api/v2/qwia-photos/photo', () => {
   it('no token, should fail with code 401', () => {
-    request(app)
+    api
       .get('/api/v2/qwia-photos/album/all')
       .expect('Content-Type', /json/)
       .expect(401);
