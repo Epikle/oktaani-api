@@ -1,4 +1,4 @@
-import request from 'supertest';
+import supertest from 'supertest';
 import mongoose from 'mongoose';
 import * as dotenv from 'dotenv';
 dotenv.config();
@@ -6,6 +6,7 @@ dotenv.config();
 import app from '../../../app';
 import Share from './share.model';
 
+const api = supertest(app);
 const baseUrl = '/api/v2/oktaani-todo/share';
 
 const initialData = {
@@ -24,15 +25,12 @@ beforeAll(async () => {
 
 describe(`POST, ${baseUrl}`, () => {
   it('has valid data, responds with 201 code', async () => {
-    await request(app).post(baseUrl).send(initialData).expect(201);
+    await api.post(baseUrl).send(initialData).expect(201);
   });
 
   it('has invalid data, responds with 400 code', async () => {
     initialData.shareData.title = '';
-    const response = await request(app)
-      .post(baseUrl)
-      .send(initialData)
-      .expect(400);
+    const response = await api.post(baseUrl).send(initialData).expect(400);
 
     expect(response.body.stack).toContain('validation failed');
   });
@@ -40,7 +38,7 @@ describe(`POST, ${baseUrl}`, () => {
 
 describe(`GET, ${baseUrl}`, () => {
   it('get created shared todo', async () => {
-    const response = await request(app)
+    const response = await api
       .get(baseUrl + '/' + initialData.shareData.shareId)
       .expect('Content-Type', /json/)
       .expect(200);
@@ -51,7 +49,7 @@ describe(`GET, ${baseUrl}`, () => {
   });
 
   it('get todo with invalid id, should fail with 404 code', async () => {
-    const response = await request(app)
+    const response = await api
       .get(baseUrl + '/invalid-id')
       .expect('Content-Type', /json/)
       .expect(404);
@@ -62,9 +60,7 @@ describe(`GET, ${baseUrl}`, () => {
 
 describe(`DELETE, ${baseUrl}`, () => {
   it('delete should fail, invalid id', async () => {
-    await request(app)
-      .delete(baseUrl + '/invalid-id')
-      .expect(204);
+    await api.delete(baseUrl + '/invalid-id').expect(204);
 
     const response = await Share.find({});
 
@@ -72,9 +68,7 @@ describe(`DELETE, ${baseUrl}`, () => {
   });
 
   it('delete should pass, valid id', async () => {
-    await request(app)
-      .delete(baseUrl + '/' + initialData.shareData.shareId)
-      .expect(204);
+    await api.delete(baseUrl + '/' + initialData.shareData.shareId).expect(204);
 
     const response = await Share.find({});
 
