@@ -5,6 +5,11 @@ enum TodoType {
   note = 'note',
   unset = 'unset',
 }
+enum TodoItemPriority {
+  low = 'low',
+  medium = 'medium',
+  high = 'high',
+}
 type TCollection = {
   id: string;
   title: string;
@@ -35,6 +40,11 @@ const shareSchema = new Schema<TCollection>({
         text: { type: String, required: true },
         done: { type: Boolean, required: true },
         created: { type: String, required: true },
+        priority: {
+          type: String,
+          enum: TodoItemPriority,
+          default: TodoItemPriority.low,
+        },
       },
     ],
     default: undefined,
