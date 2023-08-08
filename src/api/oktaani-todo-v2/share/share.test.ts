@@ -1,10 +1,12 @@
 import supertest from 'supertest';
+import { beforeAll, describe, it, expect } from 'vitest';
 import mongoose from 'mongoose';
 import * as dotenv from 'dotenv';
 dotenv.config();
 
 import app from '../../../app';
 import Share from './share.model';
+import Log from '../log/log.model';
 
 const api = supertest(app);
 const baseUrl = '/api/v2/oktaani-todo-v2/share';
@@ -20,99 +22,102 @@ const initialCollection = {
   created: 'date',
 };
 
-beforeAll(async () => {
-  await mongoose.connect(process.env.DB_ADDRESS_TEST || '');
-  await Share.deleteMany({});
-});
-
-describe(`POST, ${baseUrl}`, () => {
-  it('has valid data, responds with 201 code', async () => {
-    await api.post(baseUrl).send(initialCollection).expect(201);
-
-    const response = await Share.find({});
-
-    expect(response.length).toBe(1);
+describe('share', () => {
+  beforeAll(async () => {
+    await mongoose.connect(process.env.DB_ADDRESS_TEST || '');
+    await Share.deleteMany({});
+    await Log.deleteMany({});
   });
 
-  it('try to create same collection again', async () => {
-    await api.post(baseUrl).send(initialCollection).expect(201);
+  describe(`POST, ${baseUrl}`, () => {
+    it('has valid data, responds with 201 code', async () => {
+      await api.post(baseUrl).send(initialCollection).expect(201);
 
-    const response = await Share.find({});
+      const response = await Share.find({});
 
-    expect(response.length).toBe(1);
+      expect(response.length).toBe(1);
+    });
+
+    it('try to create same collection again', async () => {
+      await api.post(baseUrl).send(initialCollection).expect(201);
+
+      const response = await Share.find({});
+
+      expect(response.length).toBe(1);
+    });
+
+    it('has invalid data, responds with 400 code', async () => {
+      const response = await api
+        .post(baseUrl)
+        .send({ ...initialCollection, id: 'CID2', title: '' })
+        .expect(400);
+
+      expect(response.body.stack).toContain('ValidationError');
+    });
   });
 
-  it('has invalid data, responds with 400 code', async () => {
-    const response = await api
-      .post(baseUrl)
-      .send({ ...initialCollection, id: 'CID2', title: '' })
-      .expect(400);
+  describe(`GET, ${baseUrl}`, () => {
+    it('get created shared todo', async () => {
+      const response = await api
+        .get(baseUrl + '/' + initialCollection.id)
+        .expect('Content-Type', /json/)
+        .expect(200);
 
-    expect(response.body.stack).toContain('ValidationError');
-  });
-});
+      expect(response.body.color).toBe(initialCollection.color);
+    });
 
-describe(`GET, ${baseUrl}`, () => {
-  it('get created shared todo', async () => {
-    const response = await api
-      .get(baseUrl + '/' + initialCollection.id)
-      .expect('Content-Type', /json/)
-      .expect(200);
+    it('get todo with invalid id, should fail with 404 code', async () => {
+      const response = await api
+        .get(baseUrl + '/invalid-id')
+        .expect('Content-Type', /json/)
+        .expect(404);
 
-    expect(response.body.color).toBe(initialCollection.color);
-  });
-
-  it('get todo with invalid id, should fail with 404 code', async () => {
-    const response = await api
-      .get(baseUrl + '/invalid-id')
-      .expect('Content-Type', /json/)
-      .expect(404);
-
-    expect(response.body.message).toBe('Not Found');
-  });
-});
-
-describe(`PUT, ${baseUrl}`, () => {
-  it('should fail with wrong id', async () => {
-    const response = await api
-      .put(baseUrl + '/invalid-id')
-      .send({ ...initialCollection, title: 'UPDATED' })
-      .expect('Content-Type', /json/)
-      .expect(404);
-
-    expect(response.body.message).toBe('Not Found');
+      expect(response.body.message).toBe('Not Found');
+    });
   });
 
-  it('should update collection with id', async () => {
-    await api
-      .put(baseUrl + '/' + initialCollection.id)
-      .send({ ...initialCollection, title: 'UPDATED' })
-      .expect(204);
+  describe(`PUT, ${baseUrl}`, () => {
+    it('should fail with wrong id', async () => {
+      const response = await api
+        .put(baseUrl + '/invalid-id')
+        .send({ ...initialCollection, title: 'UPDATED' })
+        .expect('Content-Type', /json/)
+        .expect(404);
 
-    const collection = await Share.findOne({ id: initialCollection.id });
+      expect(response.body.message).toBe('Not Found');
+    });
 
-    expect(collection?.title).toBe('UPDATED');
+    it('should update collection with id', async () => {
+      await api
+        .put(baseUrl + '/' + initialCollection.id)
+        .send({ ...initialCollection, title: 'UPDATED' })
+        .expect(204);
+
+      const collection = await Share.findOne({ id: initialCollection.id });
+
+      expect(collection?.title).toBe('UPDATED');
+    });
   });
-});
 
-describe(`DELETE, ${baseUrl}`, () => {
-  it('delete should fail, invalid id', async () => {
-    await api.delete(baseUrl + '/invalid-id').expect(204);
+  describe(`DELETE, ${baseUrl}`, () => {
+    it('delete should fail, invalid id', async () => {
+      await api.delete(baseUrl + '/invalid-id').expect(204);
 
-    const response = await Share.find({});
+      const response = await Share.find({});
 
-    expect(response.length).toBe(1);
+      expect(response.length).toBe(1);
+    });
+
+    it('delete should pass, valid id', async () => {
+      await api.delete(baseUrl + '/' + initialCollection.id).expect(204);
+
+      const response = await Share.find({});
+
+      expect(response.length).toBe(0);
+    });
   });
 
-  it('delete should pass, valid id', async () => {
-    await api.delete(baseUrl + '/' + initialCollection.id).expect(204);
-
-    const response = await Share.find({});
-
-    expect(response.length).toBe(0);
+  afterAll(async () => {
+    await mongoose.connection.close();
   });
-});
-
-afterAll(async () => {
-  await mongoose.connection.close();
 });
