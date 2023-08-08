@@ -5,7 +5,7 @@ export default defineConfig({
     globals: true,
     environment: 'node',
     coverage: {
-      provider: 'c8',
+      provider: 'istanbul',
     },
   },
 });

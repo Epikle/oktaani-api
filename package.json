@@ -8,7 +8,8 @@
     "dev": "cross-env NODE_ENV=development nodemon src/index.ts",
     "build": "tsc",
     "lint": "eslint --fix src",
-    "test": "cross-env NODE_ENV=test vitest"
+    "test": "cross-env NODE_ENV=test vitest",
+    "test:coverage": "cross-env NODE_ENV=test vitest run --coverage"
   },
   "keywords": [],
   "author": "oktaani",
@@ -37,6 +38,7 @@
     "@types/supertest": "^2.0.12",
     "@typescript-eslint/eslint-plugin": "^6.2.0",
     "@typescript-eslint/parser": "^6.2.0",
+    "@vitest/coverage-istanbul": "^0.34.1",
     "cross-env": "^7.0.3",
     "eslint": "^8.46.0",
     "eslint-config-airbnb-typescript": "^17.1.0",
