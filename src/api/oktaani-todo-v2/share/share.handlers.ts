@@ -1,23 +1,23 @@
 import { Request, Response } from 'express';
 
-import Share from './share.model';
+import Share, { SharedEntry } from './share.model';
 
-export const createSharedCollection = async (req: Request, res: Response) => {
-  const { id } = req.body;
-  const collection = await Share.findOne({ id }, '-_id -__v -todos._id');
-
-  if (!collection) {
-    const createdShare = new Share(req.body);
-    await createdShare.save();
-  }
+export const createSharedCollection = async (
+  req: Request<{}, {}, SharedEntry>,
+  res: Response
+) => {
+  const createdShare = new Share(req.body);
+  await createdShare.save();
 
   res.sendStatus(201);
 };
 
-export const getSharedCollection = async (req: Request, res: Response) => {
+export const getSharedCollection = async (
+  req: Request<{ id: string }>,
+  res: Response<SharedEntry>
+) => {
   const { id } = req.params;
-
-  const collection = await Share.findOne({ id }, '-_id -__v -todos._id');
+  const collection = await Share.findOne({ 'col.id': id }, '-_id -__v');
 
   if (!collection) {
     res.status(404);
@@ -27,31 +27,31 @@ export const getSharedCollection = async (req: Request, res: Response) => {
   res.status(200).json(collection);
 };
 
-export const updateSharedCollection = async (req: Request, res: Response) => {
+export const updateSharedCollection = async (
+  req: Request<{ id: string }, {}, SharedEntry>,
+  res: Response
+) => {
   const { id } = req.params;
-
-  const collection = await Share.findOne({ id });
+  const collection = await Share.findOne({ 'col.id': id });
 
   if (!collection) {
     res.status(404);
     throw new Error('Not Found');
   }
 
-  await Share.findOneAndReplace(
-    { id },
-    { ...req.body, id },
-    {
-      runValidators: true,
-    }
-  );
+  await Share.findOneAndReplace({ 'col.id': id }, req.body, {
+    runValidators: true,
+  });
 
   res.sendStatus(204);
 };
 
-export const deleteSharedCollection = async (req: Request, res: Response) => {
+export const deleteSharedCollection = async (
+  req: Request<{ id: string }>,
+  res: Response
+) => {
   const { id } = req.params;
-
-  await Share.deleteOne({ id });
+  await Share.deleteOne({ 'col.id': id });
 
   res.sendStatus(204);
 };
