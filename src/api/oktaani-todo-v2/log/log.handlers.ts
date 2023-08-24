@@ -5,7 +5,7 @@ import Log from './log.model';
 export const getLogsByid = async (req: Request, res: Response) => {
   const { id } = req.params;
 
-  const logs = await Log.find({ shareId: id }, '-updatedAt')
+  const logs = await Log.find({ colId: id }, '-updatedAt')
     .sort({
       createdAt: -1,
     })

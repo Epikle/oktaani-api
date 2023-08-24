@@ -9,7 +9,7 @@ enum TodoItemPriority {
   medium = 'medium',
   high = 'high',
 }
-type Collection = {
+export type Collection = {
   id: string;
   title: string;
   color: string;
@@ -18,7 +18,7 @@ type Collection = {
   createdAt: string;
 };
 
-type Item = {
+export type Item = {
   colId: string;
   id: string;
   message: string;

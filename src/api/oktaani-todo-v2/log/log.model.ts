@@ -2,7 +2,7 @@ import { Schema, model } from 'mongoose';
 
 const logSchema = new Schema(
   {
-    shareId: { type: String, required: true },
+    colId: { type: String, required: true },
     message: { type: String, required: true },
   },
   { timestamps: true }

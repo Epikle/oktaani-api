@@ -6,19 +6,14 @@ import Log from './log/log.model';
 export const logger = (message: string) => {
   return async (req: Request, _res: Response, next: NextFunction) => {
     const { id } = req.params;
+    const collection = await Share.findOne({ 'col.id': id });
 
-    const collection = await Share.findOne({ id });
+    if (!collection) return next();
 
-    if (!collection) {
-      return next();
-    }
-
-    const newLog = {
-      shareId: id,
+    const createdLog = new Log({
+      colId: id,
       message,
-    };
-
-    const createdLog = new Log(newLog);
+    });
     await createdLog.save();
 
     next();
