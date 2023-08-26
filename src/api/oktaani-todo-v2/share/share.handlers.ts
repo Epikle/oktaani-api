@@ -13,11 +13,11 @@ export const createSharedCollection = async (
 };
 
 export const createSharedItem = async (
-  req: Request<{ id: string }, {}, Item>,
+  req: Request<{ cid: string }, {}, Item>,
   res: Response
 ) => {
-  const { id } = req.params;
-  const collection = await Share.findOne({ 'col.id': id });
+  const { cid } = req.params;
+  const collection = await Share.findOne({ 'col.id': cid });
 
   if (!collection) {
     res.status(404);
@@ -34,11 +34,11 @@ export const createSharedItem = async (
 };
 
 export const getSharedCollection = async (
-  req: Request<{ id: string }>,
+  req: Request<{ cid: string }>,
   res: Response<SharedEntry>
 ) => {
-  const { id } = req.params;
-  const collection = await Share.findOne({ 'col.id': id }, '-_id -__v');
+  const { cid } = req.params;
+  const collection = await Share.findOne({ 'col.id': cid }, '-_id -__v');
 
   if (!collection) {
     res.status(404);
@@ -49,11 +49,11 @@ export const getSharedCollection = async (
 };
 
 export const updateSharedCollection = async (
-  req: Request<{ id: string }, {}, Partial<Collection>>,
+  req: Request<{ cid: string }, {}, Partial<Collection>>,
   res: Response
 ) => {
-  const { id } = req.params;
-  const collection = await Share.findOne({ 'col.id': id });
+  const { cid } = req.params;
+  const collection = await Share.findOne({ 'col.id': cid });
 
   if (!collection) {
     res.status(404);
@@ -66,22 +66,43 @@ export const updateSharedCollection = async (
   res.sendStatus(204);
 };
 
-export const deleteSharedCollection = async (
-  req: Request<{ id: string }>,
+export const updateSharedItem = async (
+  req: Request<{ cid: string; id: string }, {}, Partial<Item>>,
   res: Response
 ) => {
-  const { id } = req.params;
-  await Share.deleteOne({ 'col.id': id });
+  const { cid, id } = req.params;
+  const collection = await Share.findOne({ 'col.id': cid });
+
+  if (!collection) {
+    res.status(404);
+    throw new Error('Not Found');
+  }
+
+  const item = collection.items?.find((i) => i.id === id);
+  if (item) {
+    Object.assign(item, req.body);
+    await collection.save();
+  }
+
+  res.sendStatus(204);
+};
+
+export const deleteSharedCollection = async (
+  req: Request<{ cid: string }>,
+  res: Response
+) => {
+  const { cid } = req.params;
+  await Share.deleteOne({ 'col.id': cid });
 
   res.sendStatus(204);
 };
 
 export const deleteSharedItems = async (
-  req: Request<{ id: string }>,
+  req: Request<{ cid: string }>,
   res: Response
 ) => {
-  const { id } = req.params;
-  const collection = await Share.findOne({ 'col.id': id });
+  const { cid } = req.params;
+  const collection = await Share.findOne({ 'col.id': cid });
 
   if (!collection) {
     res.status(404);
@@ -90,6 +111,27 @@ export const deleteSharedItems = async (
 
   if (collection.items) {
     const filteredItems = collection.items.filter((item) => !item.status);
+    collection.items = filteredItems.length > 0 ? filteredItems : null;
+    await collection.save();
+  }
+
+  res.sendStatus(204);
+};
+
+export const deleteSharedItem = async (
+  req: Request<{ cid: string; id: string }>,
+  res: Response
+) => {
+  const { cid, id } = req.params;
+  const collection = await Share.findOne({ 'col.id': cid });
+
+  if (!collection) {
+    res.status(404);
+    throw new Error('Not Found');
+  }
+
+  if (collection.items) {
+    const filteredItems = collection.items.filter((item) => item.id !== id);
     collection.items = filteredItems.length > 0 ? filteredItems : null;
     await collection.save();
   }
