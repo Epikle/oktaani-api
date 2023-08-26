@@ -18,6 +18,6 @@ router.post('/', createSharedCollection);
 router.post('/items/:id', logger('NEW ITEM'), createSharedItem);
 router.put('/:id', logger('UPDATE'), updateSharedCollection);
 router.delete('/:id', deleteSharedCollection);
-router.delete('/items/:id', logger('DELETE'), deleteSharedItems);
+router.delete('/items/:id', logger('DELETE DONE'), deleteSharedItems);
 
 export default router;
