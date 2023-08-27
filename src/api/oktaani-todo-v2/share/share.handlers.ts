@@ -6,8 +6,16 @@ export const createSharedCollection = async (
   req: Request<{}, {}, SharedEntry>,
   res: Response
 ) => {
-  const createdShare = new Share(req.body);
-  await createdShare.save();
+  let cancel = false;
+
+  res.on('close', () => {
+    cancel = true;
+  });
+
+  if (!cancel) {
+    const createdShare = new Share(req.body);
+    await createdShare.save();
+  }
 
   res.sendStatus(201);
 };
@@ -92,7 +100,15 @@ export const deleteSharedCollection = async (
   res: Response
 ) => {
   const { cid } = req.params;
-  await Share.deleteOne({ 'col.id': cid });
+  let cancel = false;
+
+  res.on('close', () => {
+    cancel = true;
+  });
+
+  if (!cancel) {
+    await Share.deleteOne({ 'col.id': cid });
+  }
 
   res.sendStatus(204);
 };
