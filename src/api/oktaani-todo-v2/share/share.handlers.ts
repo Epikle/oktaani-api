@@ -12,6 +12,9 @@ export const createSharedCollection = async (
     cancel = true;
   });
 
+  // Wait a second, if the user wants to cancel the share.
+  await new Promise((resolve) => setTimeout(resolve, 1000));
+
   if (!cancel) {
     const createdShare = new Share(req.body);
     await createdShare.save();
@@ -105,6 +108,9 @@ export const deleteSharedCollection = async (
   res.on('close', () => {
     cancel = true;
   });
+
+  // Wait a second, if the user wants to cancel the delete.
+  await new Promise((resolve) => setTimeout(resolve, 1000));
 
   if (!cancel) {
     await Share.deleteOne({ 'col.id': cid });
