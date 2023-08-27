@@ -22,6 +22,15 @@ const initialCollection = {
   },
 };
 
+const initialItem = {
+  colId: initialCollection.col.id,
+  createdAt: '2023-08-27T05:49:47.756Z',
+  id: 'PHike6yJTkYY3xOhY8056',
+  message: 'test',
+  priority: 'low',
+  status: false,
+};
+
 describe('share', () => {
   beforeAll(async () => {
     await mongoose.connect(process.env.DB_ADDRESS_TEST || '');
@@ -105,7 +114,7 @@ describe('share', () => {
       initialCollection.col.title = 'UPDATED';
       await api
         .put(baseUrl + '/' + initialCollection.col.id)
-        .send(initialCollection)
+        .send(initialCollection.col)
         .expect(204);
 
       const collection = await Share.findOne({
@@ -126,6 +135,112 @@ describe('share', () => {
       await api.delete(baseUrl + '/' + initialCollection.col.id).expect(204);
       const response = await Share.find({});
       expect(response.length).toBe(0);
+    });
+  });
+
+  describe('POST ITEM', () => {
+    it('should fail with wrong id', async () => {
+      await api.post(baseUrl + '/fake-col-id/items').expect(404);
+    });
+
+    it('should create new item, no items before', async () => {
+      await Share.deleteMany({});
+      await api.post(baseUrl).send(initialCollection).expect(201);
+      await api
+        .post(`${baseUrl}/${initialCollection.col.id}/items`)
+        .send(initialItem)
+        .expect(201);
+    });
+  });
+
+  describe('PUT ITEM', () => {
+    it('should fail with wrong id', async () => {
+      await api.put(baseUrl + '/fake-col-id/items/fake-item-id').expect(404);
+    });
+
+    it('should edit item status', async () => {
+      await Share.deleteMany({});
+      await api.post(baseUrl).send(initialCollection).expect(201);
+      await api
+        .post(`${baseUrl}/${initialCollection.col.id}/items`)
+        .send(initialItem)
+        .expect(201);
+      await api
+        .put(`${baseUrl}/${initialCollection.col.id}/items/${initialItem.id}`)
+        .send({ ...initialItem, status: true });
+
+      const response = await Share.findOne({
+        'col.id': initialCollection.col.id,
+      });
+      expect(response?.items?.[0].status).toBe(true);
+    });
+  });
+
+  describe('DELETE DONE ITEMS', () => {
+    beforeEach(async () => {
+      await Share.deleteMany({});
+      await api
+        .post(baseUrl)
+        .send({ ...initialCollection, items: [initialItem] })
+        .expect(201);
+    });
+
+    it('should fail with wrong id', async () => {
+      await api.delete(baseUrl + '/fake-col-id/items').expect(404);
+      const response = await Share.findOne({
+        'col.id': initialCollection.col.id,
+      });
+      expect(response?.items?.length).toBe(1);
+    });
+
+    it('should not delete anything, no done items', async () => {
+      await api
+        .delete(`${baseUrl}/${initialCollection.col.id}/items`)
+        .expect(204);
+      const response = await Share.findOne({
+        'col.id': initialCollection.col.id,
+      });
+      expect(response?.items?.length).toBe(1);
+    });
+
+    it('should delete done item and return null', async () => {
+      await api
+        .put(`${baseUrl}/${initialCollection.col.id}/items/${initialItem.id}`)
+        .send({ ...initialItem, status: true });
+      await api
+        .delete(`${baseUrl}/${initialCollection.col.id}/items`)
+        .expect(204);
+      const response = await Share.findOne({
+        'col.id': initialCollection.col.id,
+      });
+      expect(response?.items).toBe(null);
+    });
+  });
+
+  // router.delete('/:cid/items/:id', logger('DELETE ITEM'), deleteSharedItem);
+  describe('DELETE ITEM', () => {
+    beforeEach(async () => {
+      await Share.deleteMany({});
+      await api
+        .post(baseUrl)
+        .send({ ...initialCollection, items: [initialItem] })
+        .expect(201);
+    });
+
+    it('should fail with wrong id', async () => {
+      await api.delete(baseUrl + '/fake-col-id/items/fake-item-id').expect(404);
+    });
+
+    it('should delete item', async () => {
+      await api
+        .delete(
+          `${baseUrl}/${initialCollection.col.id}/items/${initialItem.id}`
+        )
+        .expect(204);
+      const response = await Share.findOne({
+        'col.id': initialCollection.col.id,
+      });
+      expect(response?.items).toBe(null);
     });
   });
 

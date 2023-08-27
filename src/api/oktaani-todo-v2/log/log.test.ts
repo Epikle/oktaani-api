@@ -15,7 +15,7 @@ describe('log', () => {
     await mongoose.connect(process.env.DB_ADDRESS_TEST || '');
     await Log.deleteMany({});
     const createdLog = new Log({
-      shareId: 'test-id',
+      colId: 'test-id',
       message: 'UPDATE',
     });
     await createdLog.save();
@@ -23,7 +23,6 @@ describe('log', () => {
 
   it('read log', async () => {
     const logs = await api.get(baseUrl + '/test-id');
-
-    expect(logs.body[0].shareId).toBe('test-id');
+    expect(logs.body[0].colId).toBe('test-id');
   });
 });
