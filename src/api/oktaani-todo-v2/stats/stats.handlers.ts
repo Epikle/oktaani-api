@@ -13,7 +13,7 @@ export const getStats = async (req: Request, res: Response) => {
   const sixMonthsAgo = new Date();
   sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
 
-  const lastSixMonths = await Stats.aggregate([
+  const results = await Stats.aggregate([
     {
       $match: {
         type,
@@ -31,15 +31,38 @@ export const getStats = async (req: Request, res: Response) => {
         _id: 1,
       },
     },
-    {
-      $project: {
-        _id: 0,
-        point: 1,
-      },
-    },
   ]);
 
-  res.json(lastSixMonths);
+  const monthNames = [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
+  ];
+  const countsByMonthMap = new Map();
+  const finalResults: any[] = [];
+
+  results.forEach((result) => {
+    const monthIndex = result._id - 1;
+    countsByMonthMap.set(monthNames[monthIndex], result.point);
+  });
+
+  monthNames
+    .slice(sixMonthsAgo.getMonth() + 1, new Date().getMonth() + 1)
+    .forEach((monthName) => {
+      const count = countsByMonthMap.get(monthName) || 0;
+      finalResults.push({ point: count });
+    });
+
+  res.json(finalResults);
 };
 
 export const createStats = async (req: Request, res: Response) => {
