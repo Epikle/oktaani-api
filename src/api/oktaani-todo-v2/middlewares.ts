@@ -23,3 +23,18 @@ export const logger = (message: string) => {
     next();
   };
 };
+
+export const checkStatsAuth = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { key } = req.query as { key: string | undefined };
+
+  if (!key || key !== process.env.OKTAANI_TODO_KEY) {
+    res.status(401);
+    throw new Error('Unauthorized');
+  }
+
+  next();
+};
