@@ -10,59 +10,60 @@ export const getStats = async (req: Request, res: Response) => {
     throw new Error('Bad Request');
   }
 
-  const sixMonthsAgo = new Date();
-  sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+  const lastYear = new Date();
+  lastYear.setHours(0, 0, 0, 0);
+  lastYear.setMonth(lastYear.getMonth() - 11, 1);
 
   const results = await Stats.aggregate([
     {
       $match: {
         type,
-        createdAt: { $gte: sixMonthsAgo },
+        createdAt: { $gte: lastYear },
       },
     },
     {
       $group: {
         _id: { $month: '$createdAt' },
         point: { $sum: 1 },
+        createdAt: { $first: '$createdAt' },
       },
     },
     {
       $sort: {
+        createdAt: 1,
+      },
+    },
+    {
+      $project: {
         _id: 1,
+        point: 1,
       },
     },
   ]);
 
-  const monthNames = [
-    'January',
-    'February',
-    'March',
-    'April',
-    'May',
-    'June',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'December',
-  ];
-  const countsByMonthMap = new Map();
-  const finalResults: any[] = [];
+  const monthsArray = Array.from({ length: 12 }, (_v, idx) => {
+    const resultIndex = results.findIndex((r) => r._id === idx + 1);
 
-  results.forEach((result) => {
-    const monthIndex = result._id - 1;
-    countsByMonthMap.set(monthNames[monthIndex], result.point);
+    if (resultIndex >= 0) {
+      return results[resultIndex];
+    }
+
+    return {
+      _id: idx + 1,
+      point: 0,
+    };
   });
 
-  monthNames
-    .slice(sixMonthsAgo.getMonth() + 1, new Date().getMonth() + 1)
-    .forEach((monthName) => {
-      const count = countsByMonthMap.get(monthName) || 0;
-      finalResults.push({ point: count });
-    });
+  const currentMonthId = new Date().getMonth() + 1;
+  const futureMonths = monthsArray.filter(
+    (month) => month._id > currentMonthId
+  );
+  const currentAndPastMonths = monthsArray.filter(
+    (month) => month._id <= currentMonthId
+  );
+  const arrangedMonths = [...futureMonths, ...currentAndPastMonths];
 
-  res.json(finalResults);
+  res.json(arrangedMonths);
 };
 
 export const createStats = async (req: Request, res: Response) => {
