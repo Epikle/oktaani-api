@@ -11,7 +11,7 @@ const app = express();
 const corsOrigins =
   process.env.NODE_ENV === 'development'
     ? '*'
-    : ['https://qwia.net', 'https://oktaani.com'];
+    : ['https://qwia.net', 'https://oktaani.com', 'https://oktaani-dtc.vercel.app'];
 
 if (process.env.MORGAN) {
   app.use(morgan('tiny'));
