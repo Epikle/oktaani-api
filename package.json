@@ -27,7 +27,8 @@
     "mongoose": "^7.5.3",
     "morgan": "^1.10.0",
     "nanoid": "^3.3.4",
-    "nock": "^13.3.3"
+    "nock": "^13.3.3",
+    "openai": "^4.11.1"
   },
   "devDependencies": {
     "@aws-sdk/types": "^3.418.0",
