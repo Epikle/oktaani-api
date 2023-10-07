@@ -14,6 +14,7 @@ jobs:
       DB_ADDRESS_TEST: ${{ secrets.DB_ADDRESS_TEST }}
       AUTH0_DOMAIN_QWIA: ${{ secrets.AUTH0_DOMAIN_QWIA }}
       AUTH0_AUDIENCE_QWIA: ${{ secrets.AUTH0_AUDIENCE_QWIA }}
+      OPENAI_API_KEY: ''
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
