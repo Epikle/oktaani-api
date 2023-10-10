@@ -6,7 +6,7 @@ import statsRoutes from './stats/stats.routes';
 
 const router = express.Router();
 
-//api/v2/oktaani-todo-v2/
+//api/v2/todo/
 router.use('/share', shareRoutes);
 router.use('/log', logRoutes);
 router.use('/stats', statsRoutes);

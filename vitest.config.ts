@@ -8,5 +8,8 @@ export default defineConfig({
     coverage: {
       provider: 'istanbul',
     },
+    env: {
+      OPENAI_API_KEY: '',
+    },
   },
 });

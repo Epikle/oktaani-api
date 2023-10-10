@@ -8,7 +8,7 @@ import app from '../../../app';
 import Log from '../log/log.model';
 
 const api = supertest(app);
-const baseUrl = '/api/v2/oktaani-todo-v2/log';
+const baseUrl = '/api/v2/todo/log';
 
 describe('log', () => {
   beforeAll(async () => {

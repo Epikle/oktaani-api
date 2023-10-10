@@ -9,7 +9,7 @@ import Share, { TodoType } from './share.model';
 import Log from '../log/log.model';
 
 const api = supertest(app);
-const baseUrl = '/api/v2/oktaani-todo-v2/share';
+const baseUrl = '/api/v2/todo/share';
 
 const initialCollection = {
   col: {
@@ -146,10 +146,7 @@ describe('share', () => {
     it('should create new item, no items before', async () => {
       await Share.deleteMany({});
       await api.post(baseUrl).send(initialCollection).expect(201);
-      await api
-        .post(`${baseUrl}/${initialCollection.col.id}/items`)
-        .send(initialItem)
-        .expect(201);
+      await api.post(`${baseUrl}/${initialCollection.col.id}/items`).send(initialItem).expect(201);
     });
   });
 
@@ -161,10 +158,7 @@ describe('share', () => {
     it('should edit item status', async () => {
       await Share.deleteMany({});
       await api.post(baseUrl).send(initialCollection).expect(201);
-      await api
-        .post(`${baseUrl}/${initialCollection.col.id}/items`)
-        .send(initialItem)
-        .expect(201);
+      await api.post(`${baseUrl}/${initialCollection.col.id}/items`).send(initialItem).expect(201);
       await api
         .put(`${baseUrl}/${initialCollection.col.id}/items/${initialItem.id}`)
         .send({ ...initialItem, status: true });
@@ -194,9 +188,7 @@ describe('share', () => {
     });
 
     it('should not delete anything, no done items', async () => {
-      await api
-        .delete(`${baseUrl}/${initialCollection.col.id}/items`)
-        .expect(204);
+      await api.delete(`${baseUrl}/${initialCollection.col.id}/items`).expect(204);
       const response = await Share.findOne({
         'col.id': initialCollection.col.id,
       });
@@ -207,9 +199,7 @@ describe('share', () => {
       await api
         .put(`${baseUrl}/${initialCollection.col.id}/items/${initialItem.id}`)
         .send({ ...initialItem, status: true });
-      await api
-        .delete(`${baseUrl}/${initialCollection.col.id}/items`)
-        .expect(204);
+      await api.delete(`${baseUrl}/${initialCollection.col.id}/items`).expect(204);
       const response = await Share.findOne({
         'col.id': initialCollection.col.id,
       });
@@ -232,11 +222,7 @@ describe('share', () => {
     });
 
     it('should delete item', async () => {
-      await api
-        .delete(
-          `${baseUrl}/${initialCollection.col.id}/items/${initialItem.id}`
-        )
-        .expect(204);
+      await api.delete(`${baseUrl}/${initialCollection.col.id}/items/${initialItem.id}`).expect(204);
       const response = await Share.findOne({
         'col.id': initialCollection.col.id,
       });

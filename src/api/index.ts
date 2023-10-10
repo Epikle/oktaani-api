@@ -2,7 +2,7 @@ import express from 'express';
 
 import qwiaPhotosRoutes from './qwia-photos';
 import oktaaniDtcRoutes from './oktaani-dtc';
-import oktaaniTodoV2Routes from './oktaani-todo-v2';
+import oktaaniTodoV2Routes from './todo';
 
 const router = express.Router();
 
