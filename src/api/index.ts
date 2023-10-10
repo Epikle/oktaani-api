@@ -9,6 +9,6 @@ const router = express.Router();
 //api/v2/
 router.use('/qwia-photos', qwiaPhotosRoutes);
 router.use('/oktaani-dtc', oktaaniDtcRoutes);
-router.use('/oktaani-todo-v2', oktaaniTodoV2Routes);
+router.use('/todo', oktaaniTodoV2Routes);
 
 export default router;
