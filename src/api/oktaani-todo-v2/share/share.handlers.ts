@@ -2,10 +2,7 @@ import { Request, Response } from 'express';
 
 import Share, { Item, type Collection, type SharedEntry } from './share.model';
 
-export const createSharedCollection = async (
-  req: Request<{}, {}, SharedEntry>,
-  res: Response
-) => {
+export const createSharedCollection = async (req: Request<{}, {}, SharedEntry>, res: Response) => {
   let cancel = false;
 
   res.on('close', () => {
@@ -23,10 +20,7 @@ export const createSharedCollection = async (
   res.sendStatus(201);
 };
 
-export const createSharedItem = async (
-  req: Request<{ cid: string }, {}, Item>,
-  res: Response
-) => {
+export const createSharedItem = async (req: Request<{ cid: string }, {}, Item>, res: Response) => {
   const { cid } = req.params;
   const collection = await Share.findOne({ 'col.id': cid });
 
@@ -35,19 +29,14 @@ export const createSharedItem = async (
     throw new Error('Not Found');
   }
 
-  collection.items = collection.items
-    ? [req.body, ...collection.items]
-    : [req.body];
+  collection.items = collection.items ? [req.body, ...collection.items] : [req.body];
 
   await collection.save();
 
   res.sendStatus(201);
 };
 
-export const getSharedCollection = async (
-  req: Request<{ cid: string }>,
-  res: Response<SharedEntry>
-) => {
+export const getSharedCollection = async (req: Request<{ cid: string }>, res: Response<SharedEntry>) => {
   const { cid } = req.params;
   const collection = await Share.findOne({ 'col.id': cid }, '-_id -__v');
 
@@ -59,10 +48,7 @@ export const getSharedCollection = async (
   res.status(200).json(collection);
 };
 
-export const updateSharedCollection = async (
-  req: Request<{ cid: string }, {}, Partial<Collection>>,
-  res: Response
-) => {
+export const updateSharedCollection = async (req: Request<{ cid: string }, {}, Partial<Collection>>, res: Response) => {
   const { cid } = req.params;
   const collection = await Share.findOne({ 'col.id': cid });
 
@@ -77,10 +63,7 @@ export const updateSharedCollection = async (
   res.sendStatus(204);
 };
 
-export const updateSharedItem = async (
-  req: Request<{ cid: string; id: string }, {}, Partial<Item>>,
-  res: Response
-) => {
+export const updateSharedItem = async (req: Request<{ cid: string; id: string }, {}, Partial<Item>>, res: Response) => {
   const { cid, id } = req.params;
   const collection = await Share.findOne({ 'col.id': cid });
 
@@ -98,10 +81,7 @@ export const updateSharedItem = async (
   res.sendStatus(204);
 };
 
-export const deleteSharedCollection = async (
-  req: Request<{ cid: string }>,
-  res: Response
-) => {
+export const deleteSharedCollection = async (req: Request<{ cid: string }>, res: Response) => {
   const { cid } = req.params;
   let cancel = false;
 
@@ -119,10 +99,7 @@ export const deleteSharedCollection = async (
   res.sendStatus(204);
 };
 
-export const deleteSharedItems = async (
-  req: Request<{ cid: string }>,
-  res: Response
-) => {
+export const deleteSharedItems = async (req: Request<{ cid: string }>, res: Response) => {
   const { cid } = req.params;
   const collection = await Share.findOne({ 'col.id': cid });
 
@@ -140,10 +117,7 @@ export const deleteSharedItems = async (
   res.sendStatus(204);
 };
 
-export const deleteSharedItem = async (
-  req: Request<{ cid: string; id: string }>,
-  res: Response
-) => {
+export const deleteSharedItem = async (req: Request<{ cid: string; id: string }>, res: Response) => {
   const { cid, id } = req.params;
   const collection = await Share.findOne({ 'col.id': cid });
 
