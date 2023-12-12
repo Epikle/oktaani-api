@@ -6,10 +6,7 @@ import Album, { TAlbum } from './album.model';
 import Photo from '../photo/photo.model';
 import { s3Client } from '../util/s3Setup';
 
-export const getVisibleAlbums = async (
-  _req: Request,
-  res: Response<TAlbum[]>
-) => {
+export const getVisibleAlbums = async (_req: Request, res: Response<TAlbum[]>) => {
   const visibleAlbums: TAlbum[] = await Album.aggregate([
     { $match: { isPublished: true } },
     {
@@ -80,10 +77,7 @@ export const getAllAlbums = async (_req: Request, res: Response<TAlbum[]>) => {
   res.json(allAlbums);
 };
 
-export const getAlbumPhotosById = async (
-  req: Request,
-  res: Response<TAlbum>
-) => {
+export const getAlbumPhotosById = async (req: Request, res: Response<TAlbum>) => {
   const { aid: albumId } = req.params;
   const { lid: likeId } = req.query;
   const objId = new mongoose.Types.ObjectId(albumId);
@@ -147,8 +141,7 @@ export const createAlbum = async (req: Request, res: Response<TAlbum>) => {
 
 export const updateAlbumById = async (req: Request, res: Response<TAlbum>) => {
   const { aid: albumId } = req.params;
-  const { title, isPublished }: { title: string; isPublished: boolean } =
-    req.body;
+  const { title, isPublished }: { title: string; isPublished: boolean } = req.body;
 
   const updatedAlbum = await Album.findByIdAndUpdate(
     albumId,
@@ -170,7 +163,7 @@ export const deleteAlbumById = async (req: Request, res: Response<{}>) => {
   const { aid: albumId } = req.params;
   const objId = new mongoose.Types.ObjectId(albumId);
 
-  const deletedAlbum = await Album.findByIdAndRemove(albumId);
+  const deletedAlbum = await Album.findByIdAndDelete(albumId);
   if (!deletedAlbum) {
     res.status(404);
     throw new Error('Album not found.');

@@ -50,29 +50,27 @@ export const updatePhotoById = async (req: Request, res: Response<TPhoto>) => {
 export const deletePhotoById = async (req: Request, res: Response<{}>) => {
   const { pid: photoId } = req.params;
 
-  const photo = await Photo.findByIdAndRemove(photoId);
-  if (!photo) {
+  const photo = await Photo.findByIdAndDelete(photoId);
+  if (!photo || !photo.value) {
     res.status(404);
     throw new Error('Photo not found.');
   }
 
-  const albumId = photo.album.toString();
+  const albumId = photo.value.album.toString();
   const album = await Album.findById(albumId);
   if (!album) {
     res.status(404);
     throw new Error('Album not found.');
   }
 
-  const filteredPhotoList = album.photos.filter(
-    (id: string) => photoId !== id.toString()
-  );
+  const filteredPhotoList = album.photos.filter((id: string) => photoId !== id.toString());
 
   album.photos = filteredPhotoList;
   await album.save();
 
   const bucketParams = {
     Bucket: process.env.S3_BUCKET_NAME,
-    Key: photo.url,
+    Key: photo.value.url,
   };
   const command = new DeleteObjectCommand(bucketParams);
   await s3Client.send(command);
@@ -107,10 +105,7 @@ export const addLikeToPhotoById = async (req: Request, res: Response<{}>) => {
   res.status(201).end();
 };
 
-export const deleteLikeFromPhotoById = async (
-  req: Request,
-  res: Response<{}>
-) => {
+export const deleteLikeFromPhotoById = async (req: Request, res: Response<{}>) => {
   const { pid: photoId } = req.params;
   const { lid: likeId } = req.query;
 
