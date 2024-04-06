@@ -13,7 +13,9 @@ const corsOrigins =
     ? '*'
     : [
         'https://qwia.net',
+        'https://www.qwia.net',
         'https://oktaani.com',
+        'https://www.oktaani.com',
         'https://dtc.oktaani.com',
         'https://todo.oktaani.com',
         'https://todo-stats.oktaani.com',
